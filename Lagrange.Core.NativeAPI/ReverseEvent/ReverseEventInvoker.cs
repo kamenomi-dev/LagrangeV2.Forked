@@ -28,6 +28,8 @@ namespace Lagrange.Core.NativeAPI.ReverseEvent
 
         public BotFriendRequestReverseEvent BotFriendRequestEvent { get; } = new();
 
+        public BotFriendRecallReverseEvent BotFriendRecallEvent { get; } = new();
+
         public BotGroupInviteNotificationReverseEvent BotGroupInviteNotificationEvent { get; } = new();
 
         public BotGroupJoinNotificationReverseEvent BotGroupJoinNotificationEvent { get; } = new();
@@ -39,6 +41,8 @@ namespace Lagrange.Core.NativeAPI.ReverseEvent
         public BotGroupNudgeReverseEvent BotGroupNudgeEvent { get; } = new();
 
         public BotGroupReactionReverseEvent BotGroupReactionEvent { get; } = new();
+        
+        public BotGroupRecallReverseEvent BotGroupRecallEvent { get; } = new();
 
         public BotLoginReverseEvent BotLoginEvent { get; } = new();
 
