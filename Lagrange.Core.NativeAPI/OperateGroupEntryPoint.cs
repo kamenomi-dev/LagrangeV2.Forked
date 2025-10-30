@@ -1,7 +1,9 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using Lagrange.Core.Common.Entity;
 using Lagrange.Core.Common.Interface;
+using Lagrange.Core.Message;
 using Lagrange.Core.NativeAPI.NativeModel.Common;
 using Lagrange.Core.NativeAPI.NativeModel.Event;
 using Lagrange.Core.NativeAPI.NativeModel.Message;
@@ -10,6 +12,34 @@ namespace Lagrange.Core.NativeAPI
 {
     public static class OperateGroupEntryPoint
     {
+        [UnmanagedCallersOnly(EntryPoint = "FetchGroupNotifications")]
+        public static IntPtr FetchGroupNotifications(int index, ulong count, ulong start /*= 0*/)
+        {
+            if (Program.Contexts.Count <= index)
+            {
+                return IntPtr.Zero;
+            }
+
+            var context = Program.Contexts[index].BotContext;
+            var notifications = context.FetchGroupNotifications(count, start).GetAwaiter().GetResult();
+
+            return GetGroupNotificationsStructPtr(notifications);
+        }
+
+        [UnmanagedCallersOnly(EntryPoint = "FetchFilteredGroupNotifications")]
+        public static IntPtr FetchFilteredGroupNotifications(int index, ulong count, ulong start /*= 0*/)
+        {
+            if (Program.Contexts.Count <= index)
+            {
+                return IntPtr.Zero;
+            }
+
+            var context = Program.Contexts[index].BotContext;
+            var notifications = context.FetchFilteredGroupNotifications(count, start).GetAwaiter().GetResult();
+
+            return GetGroupNotificationsStructPtr(notifications);
+        }
+
         [UnmanagedCallersOnly(EntryPoint = "GetGroupList")]
         public static IntPtr GetGroupList(int index, bool refresh /*= false*/)
         {
@@ -47,7 +77,7 @@ namespace Lagrange.Core.NativeAPI
             Marshal.StructureToPtr(result, resultPtr, false);
             return resultPtr;
         }
-        
+
         [UnmanagedCallersOnly(EntryPoint = "GetMemberList")]
         public static IntPtr GetMemberList(int index, long groupUin, bool refresh /*= false*/)
         {
@@ -86,32 +116,64 @@ namespace Lagrange.Core.NativeAPI
             return resultPtr;
         }
 
-        [UnmanagedCallersOnly(EntryPoint = "FetchGroupNotifications")]
-        public static IntPtr FetchGroupNotifications(int index, ulong count, ulong start /*= 0*/)
+        [UnmanagedCallersOnly(EntryPoint = "QuitGroup")]
+        public static void QuitGroup(int index, long groupUin)
         {
             if (Program.Contexts.Count <= index)
             {
-                return IntPtr.Zero;
+                return;
             }
 
-            var context = Program.Contexts[index].BotContext;
-            var notifications = context.FetchGroupNotifications(count, start).GetAwaiter().GetResult();
-
-            return GetGroupNotificationsStructPtr(notifications);
+            BotContext context = Program.Contexts[index].BotContext;
+            context.GroupQuit(groupUin);
         }
 
-        [UnmanagedCallersOnly(EntryPoint = "FetchFilteredGroupNotifications")]
-        public static IntPtr FetchFilteredGroupNotifications(int index, ulong count, ulong start /*= 0*/)
+        [UnmanagedCallersOnly(EntryPoint = "RenameGroup")]
+        public static void RenameGroup(int index, long groupUin, ByteArrayNative name)
         {
             if (Program.Contexts.Count <= index)
             {
-                return IntPtr.Zero;
+                return;
             }
 
-            var context = Program.Contexts[index].BotContext;
-            var notifications = context.FetchFilteredGroupNotifications(count, start).GetAwaiter().GetResult();
+            BotContext context = Program.Contexts[index].BotContext;
+            context.GroupRename(groupUin, Encoding.UTF8.GetString(name.ToByteArrayWithoutFree()));
+        }
 
-            return GetGroupNotificationsStructPtr(notifications);
+        [UnmanagedCallersOnly(EntryPoint = "RenameGroupMember")]
+        public static void RenameGroupMember(int index, long groupUin, long targetUin, ByteArrayNative name)
+        {
+            if (Program.Contexts.Count <= index)
+            {
+                return;
+            }
+
+            BotContext context = Program.Contexts[index].BotContext;
+            context.GroupMemberRename(groupUin, targetUin, Encoding.UTF8.GetString(name.ToByteArrayWithoutFree()));
+        }
+
+        [UnmanagedCallersOnly(EntryPoint = "SendGroupNudge")]
+        public static void SendGroupNudge(int index, long peerUin, long targetUin)
+        {
+            if (Program.Contexts.Count <= index)
+            {
+                return;
+            }
+
+            BotContext context = Program.Contexts[index].BotContext;
+            context.SendGroupNudge(peerUin, targetUin);
+        }
+
+        [UnmanagedCallersOnly(EntryPoint = "SetGroupSpecialTitle")]
+        public static void SetGroupSpecialTitle(int index, long groupUin, long targetUin, ByteArrayNative title)
+        {
+            if (Program.Contexts.Count <= index)
+            {
+                return;
+            }
+
+            BotContext context = Program.Contexts[index].BotContext;
+            context.GroupSetSpecialTitle(groupUin, targetUin, Encoding.UTF8.GetString(title.ToByteArrayWithoutFree()));
         }
 
         [UnmanagedCallersOnly(EntryPoint = "SetGroupNotification")]
@@ -164,8 +226,8 @@ namespace Lagrange.Core.NativeAPI
                 {
                     BotGroupNotificationType.Join => Marshal.SizeOf<BotGroupJoinNotificationStruct>(),
                     BotGroupNotificationType.SetAdmin => Marshal.SizeOf<BotGroupSetAdminNotificationStruct>(),
-                    BotGroupNotificationType.KickOther => Marshal.SizeOf<BotGroupKickOtherNotificationStruct>(),
-                    BotGroupNotificationType.KickSelf => Marshal.SizeOf<BotGroupKickSelfNotificationStruct>(),
+                    BotGroupNotificationType.KickOther => Marshal.SizeOf<BotGroupKickNotificationStruct>(),
+                    BotGroupNotificationType.KickSelf => Marshal.SizeOf<BotGroupKickNotificationStruct>(),
                     BotGroupNotificationType.Exit => Marshal.SizeOf<BotGroupExitNotificationStruct>(),
                     BotGroupNotificationType.UnsetAdmin => Marshal.SizeOf<BotGroupUnsetAdminNotificationStruct>(),
                     BotGroupNotificationType.Invite => Marshal.SizeOf<BotGroupInviteNotificationStruct>(),
@@ -194,16 +256,10 @@ namespace Lagrange.Core.NativeAPI
                         );
                         break;
                     case BotGroupNotificationType.KickOther:
-                        Marshal.StructureToPtr(
-                            (BotGroupKickOtherNotificationStruct)(BotGroupKickNotification)notifications[i],
-                            result.Events + i * Marshal.SizeOf<BotGroupKickOtherNotificationStruct>(),
-                            false
-                        );
-                        break;
                     case BotGroupNotificationType.KickSelf:
                         Marshal.StructureToPtr(
-                            (BotGroupKickSelfNotificationStruct)(BotGroupKickNotification)notifications[i],
-                            result.Events + i * Marshal.SizeOf<BotGroupKickSelfNotificationStruct>(),
+                            (BotGroupKickNotificationStruct)(BotGroupKickNotification)notifications[i],
+                            result.Events + i * Marshal.SizeOf<BotGroupKickNotificationStruct>(),
                             false
                         );
                         break;

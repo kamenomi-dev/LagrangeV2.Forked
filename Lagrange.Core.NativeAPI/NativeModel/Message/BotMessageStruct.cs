@@ -28,6 +28,10 @@ namespace Lagrange.Core.NativeAPI.NativeModel.Message
 
         public int EntityLength = 0;
 
+        public ulong Sequence = 0;
+
+        public ulong ClientSequence = 0;
+
         public static implicit operator BotMessageStruct(BotMessage message)
         {
             int type = 0;
@@ -162,7 +166,9 @@ namespace Lagrange.Core.NativeAPI.NativeModel.Message
                 Type = type,
                 Time = Encoding.UTF8.GetBytes(message.Time.ToString("O")),
                 Entities = entitiesPtr,
-                EntityLength = entitiesLength
+                EntityLength = entitiesLength,
+                Sequence = message.Sequence,
+                ClientSequence = message.ClientSequence
             };
         }
     }
