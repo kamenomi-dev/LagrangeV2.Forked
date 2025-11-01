@@ -53,6 +53,21 @@ namespace Lagrange.Core.NativeAPI.ReverseEvent
             return eventPtr;
         }
 
+        [UnmanagedCallersOnly(EntryPoint = "GetBotFriendRecallEvent")]
+        public static IntPtr GetBotFriendRecallEvent(int index)
+        {
+            if (index >= Program.Contexts.Count)
+            {
+                return IntPtr.Zero;
+            }
+
+            var botFriendRecallEvent = Program.Contexts[index].EventInvoker.BotFriendRecallEvent;
+
+            IntPtr eventPtr = GetEventStructPtr<BotFriendRecallEventStruct>(botFriendRecallEvent);
+
+            return eventPtr;
+        }
+
         [UnmanagedCallersOnly(EntryPoint = "GetBotFriendRequestEvent")]
         public static IntPtr GetBotFriendRequestEvent(int index)
         {
@@ -68,8 +83,8 @@ namespace Lagrange.Core.NativeAPI.ReverseEvent
             return eventPtr;
         }
 
-        [UnmanagedCallersOnly(EntryPoint = "GetGroupInviteNotificationEvent")]
-        public static IntPtr GetGroupInviteNotificationEvent(int index)
+        [UnmanagedCallersOnly(EntryPoint = "GetBotGroupInviteNotificationEvent")]
+        public static IntPtr GetBotGroupInviteNotificationEvent(int index)
         {
             if (index >= Program.Contexts.Count)
             {
@@ -83,8 +98,8 @@ namespace Lagrange.Core.NativeAPI.ReverseEvent
             return eventPtr;
         }
 
-        [UnmanagedCallersOnly(EntryPoint = "GetGroupJoinNotificationEvent")]
-        public static IntPtr GetGroupJoinNotificationEvent(int index)
+        [UnmanagedCallersOnly(EntryPoint = "GetBotGroupJoinNotificationEvent")]
+        public static IntPtr GetBotGroupJoinNotificationEvent(int index)
         {
             if (index >= Program.Contexts.Count)
             {
@@ -98,8 +113,8 @@ namespace Lagrange.Core.NativeAPI.ReverseEvent
             return eventPtr;
         }
 
-        [UnmanagedCallersOnly(EntryPoint = "GetGroupMemberDecreaseEvent")]
-        public static IntPtr GetGroupMemberDecreaseEvent(int index)
+        [UnmanagedCallersOnly(EntryPoint = "GetBotGroupMemberDecreaseEvent")]
+        public static IntPtr GetBotGroupMemberDecreaseEvent(int index)
         {
             if (index >= Program.Contexts.Count)
             {
@@ -113,8 +128,8 @@ namespace Lagrange.Core.NativeAPI.ReverseEvent
             return eventPtr;
         }
 
-        [UnmanagedCallersOnly(EntryPoint = "GetGroupMemberIncreaseEvent")]
-        public static IntPtr GetGroupMemberIncreaseEvent(int index)
+        [UnmanagedCallersOnly(EntryPoint = "GetBotGroupMemberIncreaseEvent")]
+        public static IntPtr GetBotGroupMemberIncreaseEvent(int index)
         {
             if (index >= Program.Contexts.Count)
             {
@@ -128,8 +143,8 @@ namespace Lagrange.Core.NativeAPI.ReverseEvent
             return eventPtr;
         }
 
-        [UnmanagedCallersOnly(EntryPoint = "GetGroupNudgeEvent")]
-        public static IntPtr GetGroupNudgeEvent(int index)
+        [UnmanagedCallersOnly(EntryPoint = "GetBotGroupNudgeEvent")]
+        public static IntPtr GetBotGroupNudgeEvent(int index)
         {
             if (index >= Program.Contexts.Count)
             {
@@ -154,6 +169,21 @@ namespace Lagrange.Core.NativeAPI.ReverseEvent
             var botGroupReactionEvent = Program.Contexts[index].EventInvoker.BotGroupReactionEvent;
 
             IntPtr eventPtr = GetEventStructPtr<BotGroupReactionEventStruct>(botGroupReactionEvent);
+
+            return eventPtr;
+        }
+       
+        [UnmanagedCallersOnly(EntryPoint = "GetBotGroupRecallEvent")]
+        public static IntPtr GetBotGroupRecallEvent(int index)
+        {
+            if (index >= Program.Contexts.Count)
+            {
+                return IntPtr.Zero;
+            }
+
+            var botGroupRecallEvent = Program.Contexts[index].EventInvoker.BotGroupRecallEvent;
+
+            IntPtr eventPtr = GetEventStructPtr<BotGroupReactionEventStruct>(botGroupRecallEvent);
 
             return eventPtr;
         }
