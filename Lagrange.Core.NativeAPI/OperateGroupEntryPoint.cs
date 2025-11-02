@@ -1,9 +1,7 @@
-﻿using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Text;
 using Lagrange.Core.Common.Entity;
 using Lagrange.Core.Common.Interface;
-using Lagrange.Core.Message;
 using Lagrange.Core.NativeAPI.NativeModel.Common;
 using Lagrange.Core.NativeAPI.NativeModel.Event;
 using Lagrange.Core.NativeAPI.NativeModel.Message;

@@ -18,6 +18,7 @@ namespace Lagrange.Core.NativeAPI.ReverseEvent
             BotLogEvent.RegisterEventHandler(context);
             BotMessageEvent.RegisterEventHandler(context);
             BotNewDeviceVerifyEvent.RegisterEventHandler(context);
+            BotOfflineEvent.RegisterEventHandler(context);
             BotOnlineEvent.RegisterEventHandler(context);
             BotQrCodeEvent.RegisterEventHandler(context);
             BotQrCodeQueryEvent.RegisterEventHandler(context);
@@ -51,6 +52,8 @@ namespace Lagrange.Core.NativeAPI.ReverseEvent
         public BotMessageReverseEvent BotMessageEvent { get; } = new();
 
         public BotNewDeviceVerifyReverseEvent BotNewDeviceVerifyEvent { get; } = new();
+
+        public BotOfflineReverseEvent BotOfflineEvent { get; } = new();
 
         public BotOnlineReverseEvent BotOnlineEvent { get; } = new();
 

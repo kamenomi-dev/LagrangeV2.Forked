@@ -248,6 +248,21 @@ namespace Lagrange.Core.NativeAPI.ReverseEvent
             return eventPtr;
         }
 
+        [UnmanagedCallersOnly(EntryPoint = "GetOfflineEvent")]
+        public static IntPtr GetOfflineEvent(int index)
+        {
+            if (index >= Program.Contexts.Count)
+            {
+                return IntPtr.Zero;
+            }
+
+            var botOfflineEvent = Program.Contexts[index].EventInvoker.BotOfflineEvent;
+
+            IntPtr eventPtr = GetEventStructPtr<BotOfflineEventStruct>(botOfflineEvent);
+
+            return eventPtr;
+        }
+
         [UnmanagedCallersOnly(EntryPoint = "GetOnlineEvent")]
         public static IntPtr GetOnlineEvent(int index)
         {
