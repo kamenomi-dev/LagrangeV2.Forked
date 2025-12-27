@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Formats.Asn1;
-using System.Text;
 using Lagrange.Core.Common.Entity;
 using Lagrange.Core.Internal.Events.System;
 using Lagrange.Core.Internal.Packets.Message;
@@ -181,7 +180,7 @@ internal class MessagePacker
             {
                 FileType = 0,
                 FileUuid = resp.FileId,
-                FileMd5 = req.FileMd5,
+                FileMd5 = req.File10MMd5,
                 FileName = req.FileName,
                 FileSize = (ulong)req.FileStream.Length,
                 SubCmd = 1,

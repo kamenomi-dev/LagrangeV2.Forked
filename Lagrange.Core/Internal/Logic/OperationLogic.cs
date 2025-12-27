@@ -5,6 +5,7 @@ using Lagrange.Core.Exceptions;
 using Lagrange.Core.Internal.Events.Message;
 using Lagrange.Core.Internal.Events.System;
 using Lagrange.Core.Internal.Packets.Service;
+using Lagrange.Core.Internal.Services;
 using Lagrange.Core.Message;
 using Lagrange.Core.Message.Entities;
 using Lagrange.Core.Utility;
@@ -21,6 +22,13 @@ internal class OperationLogic(BotContext context) : ILogic
     private const string Tag = nameof(OperationLogic);
 
     public async Task<Dictionary<string, string>> FetchCookies(List<string> domains) => (await context.EventContext.SendEvent<FetchCookiesEventResp>(new FetchCookiesEventReq(domains))).Cookies;
+    
+    public ValueTask<BotSsoPacket> SendPacket(BotSsoPacket packet, RequestType requestType, EncryptType encryptType)
+    {
+        int sequence = packet.Sequence != 0 ? packet.Sequence : context.ServiceContext.GetNewSequence();
+        packet.Sequence = sequence;
+        return context.PacketContext.SendPacket(packet, new ServiceAttribute(packet.Command, requestType, encryptType));
+    }
 
     public async Task<(string, uint)> FetchClientKey()
     {
@@ -80,15 +88,17 @@ internal class OperationLogic(BotContext context) : ILogic
         fileName = ResolveFileName(fileStream, fileName);
 
         var friend = await context.CacheContext.ResolveFriend(targetUin) ?? throw new InvalidTargetException(targetUin);
-        var request = new FileUploadEventReq(friend.Uid, fileStream, fileName);
-        var result = await context.EventContext.SendEvent<FileUploadEventResp>(request);
-
-        var buffer = ArrayPool<byte>.Shared.Rent(10 * 1024 * 1024);
-        int payload = await fileStream.ReadAsync(buffer.AsMemory(0, 10 * 1024 * 1024));
+        
+        var buffer = ArrayPool<byte>.Shared.Rent(10002432);
+        int payload = await fileStream.ReadAsync(buffer.AsMemory(0, 10002432));
         var md510m = MD5.HashData(buffer[..payload]);
         ArrayPool<byte>.Shared.Return(buffer);
-        request.FileStream.Seek(0, SeekOrigin.Begin);
+        fileStream.Seek(0, SeekOrigin.Begin);
+        
+        var request = new FileUploadEventReq(friend.Uid, fileStream, fileName, md510m);
+        var result = await context.EventContext.SendEvent<FileUploadEventResp>(request);
 
+        
         if (!result.IsExist)
         {
             var ext = new FileUploadExt
@@ -168,8 +178,8 @@ internal class OperationLogic(BotContext context) : ILogic
         var request = new GroupFSUploadEventReq(groupUin, fileName, fileStream, parentDirectory, md5);
         var uploadResp = await context.EventContext.SendEvent<GroupFSUploadEventResp>(request);
 
-        var buffer = ArrayPool<byte>.Shared.Rent(10 * 1024 * 1024);
-        int payload = await fileStream.ReadAsync(buffer.AsMemory(0, 10 * 1024 * 1024));
+        var buffer = ArrayPool<byte>.Shared.Rent(10002432);
+        int payload = await fileStream.ReadAsync(buffer.AsMemory(0, 10002432));
         var md510m = MD5.HashData(buffer[..payload]);
         ArrayPool<byte>.Shared.Return(buffer);
         fileStream.Seek(0, SeekOrigin.Begin);
