@@ -272,7 +272,8 @@ internal class AndroidSignProvider(string? signUrl) : AndroidBotSignProvider, ID
                 ["seq"] = seq,
                 ["buffer"] = Convert.ToHexString(body.Span),
                 ["guid"] = Convert.ToHexString(Context.Keystore.Guid),
-                ["version"] = Context.AppInfo.PtVersion
+                ["version"] = Context.AppInfo.PtVersion,
+                ["qua"] = Context.AppInfo.Qua
             };
 
             var response = await _client.PostAsync($"{_url}/sign", new StringContent(payload.ToJsonString(), Encoding.UTF8, "application/json"));
@@ -305,7 +306,8 @@ internal class AndroidSignProvider(string? signUrl) : AndroidBotSignProvider, ID
                 ["data"] = data,
                 ["guid"] = Convert.ToHexString(Context.Keystore.Guid),
                 ["ver"] = Context.AppInfo.SdkInfo.SdkVersion,
-                ["version"] = Context.AppInfo.PtVersion
+                ["version"] = Context.AppInfo.PtVersion,
+                ["qua"] = Context.AppInfo.Qua
             };
 
             var response = await _client.PostAsync($"{_url}/energy", new StringContent(payload.ToJsonString(), Encoding.UTF8, "application/json"));
@@ -330,7 +332,8 @@ internal class AndroidSignProvider(string? signUrl) : AndroidBotSignProvider, ID
                 ["uin"] = uin,
                 ["data"] = data,
                 ["guid"] = Convert.ToHexString(Context.Keystore.Guid),
-                ["version"] = Context.AppInfo.PtVersion
+                ["version"] = Context.AppInfo.PtVersion,
+                ["qua"] = Context.AppInfo.Qua
             };
 
             var response = await _client.PostAsync($"{_url}/get_tlv553", new StringContent(payload.ToJsonString(), Encoding.UTF8, "application/json"));
@@ -371,12 +374,10 @@ internal class AndroidSignProvider(string? signUrl) : AndroidBotSignProvider, ID
 internal static partial class JsonHelper
 {
     [JsonSourceGenerationOptions(GenerationMode = JsonSourceGenerationMode.Default, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
-
     [JsonSerializable(typeof(AndroidSignProvider.ResponseRoot<AndroidSignProvider.SignResponse>))]
     [JsonSerializable(typeof(AndroidSignProvider.ResponseRoot<string>))]
     [JsonSerializable(typeof(LinuxSignProvider.Root))]
     [JsonSerializable(typeof(LinuxSignProvider.Response))]
-
     [JsonSerializable(typeof(JsonObject))]
     [JsonSerializable(typeof(LightApp))]
     private partial class CoreSerializerContext : JsonSerializerContext;

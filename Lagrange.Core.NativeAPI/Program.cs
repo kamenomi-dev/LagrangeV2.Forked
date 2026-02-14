@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using System.Text;
 using Lagrange.Core.Common;
 using Lagrange.Core.Common.Interface;
 using Lagrange.Core.NativeAPI.NativeModel.Common;
@@ -37,8 +38,9 @@ public static class Program
         return index;
     }
 
+    //uin, password皆可选，传入 0 或结构体内Data/Length置0
     [UnmanagedCallersOnly(EntryPoint = "Start")]
-    public static StatusCode Start(int index)
+    public static StatusCode Start(int index, long uin, ByteArrayNative password)
     {
         if (Contexts.Count <= index)
         {
@@ -50,9 +52,22 @@ public static class Program
             return StatusCode.AlreadyStarted;
         }
 
+        if (uin == 0 || password.IsEmpty())
+        {
+            Task.Run(async () =>
+            {
+                await Contexts[index].BotContext.Login();
+                await Task.Delay(Timeout.Infinite);
+            });
+
+            return StatusCode.Success;
+        }
+
+        var passwordData = Encoding.UTF8.GetString(password.ToByteArrayWithoutFree());
+
         Task.Run(async () =>
         {
-            await Contexts[index].BotContext.Login();
+            await Contexts[index].BotContext.Login(uin, passwordData);
             await Task.Delay(Timeout.Infinite);
         });
 

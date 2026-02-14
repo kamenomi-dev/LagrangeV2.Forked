@@ -19,10 +19,10 @@ internal class LoginService : BaseService<LoginEventReq, LoginEventResp>
     protected override ValueTask<ReadOnlyMemory<byte>> Build(LoginEventReq input, BotContext context)
     {
         if (!_packet.IsValueCreated) _packet = new Lazy<WtLogin>(() => new WtLogin(context));
-        
+
         return input.Cmd switch
         {
-            LoginEventReq.Command.Tgtgt =>  new ValueTask<ReadOnlyMemory<byte>>(_packet.Value.BuildOicq09()),
+            LoginEventReq.Command.Tgtgt => new ValueTask<ReadOnlyMemory<byte>>(_packet.Value.BuildOicq09()),
             _ => throw new ArgumentOutOfRangeException(nameof(input), $"Unknown command: {input.Cmd}")
         };
     }
@@ -48,7 +48,7 @@ internal class LoginServiceAndroid : BaseService<LoginEventReq, LoginEventResp>
 
         return input.Cmd switch
         {
-            LoginEventReq.Command.Tgtgt =>  await _packet.Value.BuildOicq09Android(input.Password),
+            LoginEventReq.Command.Tgtgt => await _packet.Value.BuildOicq09Android(input.Password),
             LoginEventReq.Command.Captcha => await _packet.Value.BuildOicq02Android(input.Ticket),
             LoginEventReq.Command.FetchSMSCode => await _packet.Value.BuildOicq08Android(),
             LoginEventReq.Command.SubmitSMSCode => await _packet.Value.BuildOicq07Android(input.Code),
@@ -72,7 +72,7 @@ file static class Common
         var payload = packet.Parse(input.Span, out ushort command);
         var reader = new BinaryPacket(payload);
         Debug.Assert(command == 0x810);
-        
+
         ushort internalCmd = reader.Read<ushort>();
         byte state = reader.Read<byte>();
         var tlvs = ProtocolHelper.TlvUnPack(ref reader);
@@ -83,7 +83,7 @@ file static class Common
             uint _ = errorReader.Read<uint>(); // error code
             string errorTitle = errorReader.ReadString(Prefix.Int16 | Prefix.LengthOnly);
             string errorMessage = errorReader.ReadString(Prefix.Int16 | Prefix.LengthOnly);
-            
+
             return new LoginEventResp(state, (errorTitle, errorMessage));
         }
 
@@ -93,7 +93,7 @@ file static class Common
             var tlv119 = TeaProvider.CreateDecryptSpan(tgtgt);
             var tlv119Reader = new BinaryPacket(tlv119);
             var tlvCollection = ProtocolHelper.TlvUnPack(ref tlv119Reader);
-            
+
             return new LoginEventResp(state, tlvCollection);
         }
 

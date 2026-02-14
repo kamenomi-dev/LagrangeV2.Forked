@@ -172,7 +172,7 @@ namespace Lagrange.Core.NativeAPI.ReverseEvent
 
             return eventPtr;
         }
-       
+
         [UnmanagedCallersOnly(EntryPoint = "GetBotGroupRecallEvent")]
         public static IntPtr GetBotGroupRecallEvent(int index)
         {
@@ -183,7 +183,7 @@ namespace Lagrange.Core.NativeAPI.ReverseEvent
 
             var botGroupRecallEvent = Program.Contexts[index].EventInvoker.BotGroupRecallEvent;
 
-            IntPtr eventPtr = GetEventStructPtr<BotGroupReactionEventStruct>(botGroupRecallEvent);
+            IntPtr eventPtr = GetEventStructPtr<BotGroupRecallEventStruct>(botGroupRecallEvent);
 
             return eventPtr;
         }
