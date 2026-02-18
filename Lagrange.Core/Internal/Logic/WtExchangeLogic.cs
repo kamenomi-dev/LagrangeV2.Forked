@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Concurrent;
+using System.Numerics;
 using System.Text;
 using System.Web;
 using Lagrange.Core.Common;
@@ -206,6 +208,27 @@ internal class WtExchangeLogic : ILogic, IDisposable
                     
                     _token?.ThrowIfCancellationRequested();
                     result = await _context.EventContext.SendEvent<LoginEventResp>(new LoginEventReq(LoginEventReq.Command.Captcha) { Ticket = ticket });
+
+                    // --- Patch begin ---
+                    if (result.State == LoginEventResp.States.SmsRequired)
+                    {
+                        string? url = null;
+                        if (result.Tlvs.TryGetValue(0x204, out var tlv204)) {
+                            url = Encoding.UTF8.GetString(tlv204);
+                        }
+
+                        var tlv178 = new BinaryPacket(result.Tlvs[0x178].AsSpan());
+                        string countryCode = tlv178.ReadString(Prefix.Int16 | Prefix.LengthOnly);
+                        string phone = tlv178.ReadString(Prefix.Int16 | Prefix.LengthOnly);
+
+                        _context.LogInfo(Tag, "SMS Verification required, Phone: {0}-{1} | URL: {2}", countryCode, phone, url);
+                        _context.EventInvoker.PostEvent(new BotSMSEvent(url, $"{countryCode}-{phone}"));
+
+                        _smsSource = new TaskCompletionSource<string>();
+                        string code = await _smsSource.Task;
+                        result = await _context.EventContext.SendEvent<LoginEventResp>(new LoginEventReq(LoginEventReq.Command.SubmitSMSCode) { Code = code });
+                    }
+                    // --- Patch  end  ---
                 }
 
                 if (result.State == LoginEventResp.States.DeviceLockViaSmsNewArea)

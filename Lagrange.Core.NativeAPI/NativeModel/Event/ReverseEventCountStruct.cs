@@ -22,6 +22,7 @@ namespace Lagrange.Core.NativeAPI.NativeModel.Event
         public int BotLogEventCount = 0;
         public int BotMessageEventCount = 0;
         public int BotNewDeviceVerifyEventCount = 0;
+        public int BotOfflineEventCount = 0;
         public int BotOnlineEventCount = 0;
         public int BotQrCodeEventCount = 0;
         public int BotQrCodeQueryEventCount = 0;

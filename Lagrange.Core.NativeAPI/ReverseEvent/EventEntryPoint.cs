@@ -25,6 +25,7 @@ namespace Lagrange.Core.NativeAPI.ReverseEvent
                 BotLogEventCount = Program.Contexts[index].EventInvoker.BotLogEvent.Events.Count,
                 BotMessageEventCount = Program.Contexts[index].EventInvoker.BotMessageEvent.Events.Count,
                 BotNewDeviceVerifyEventCount = Program.Contexts[index].EventInvoker.BotNewDeviceVerifyEvent.Events.Count,
+                BotOfflineEventCount = Program.Contexts[index].EventInvoker.BotOfflineEvent.Events.Count,
                 BotOnlineEventCount = Program.Contexts[index].EventInvoker.BotOnlineEvent.Events.Count,
                 BotQrCodeEventCount = Program.Contexts[index].EventInvoker.BotQrCodeEvent.Events.Count,
                 BotQrCodeQueryEventCount = Program.Contexts[index].EventInvoker.BotQrCodeQueryEvent.Events.Count,
