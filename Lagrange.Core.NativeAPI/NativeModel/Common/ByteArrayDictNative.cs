@@ -6,7 +6,7 @@ public struct ByteArrayDictNative
 {
     public int Length;
     public IntPtr Data;
-    
+
     public static implicit operator ByteArrayDictNative(ByteArrayKVPNative[] dict)
     {
         int size = Marshal.SizeOf<ByteArrayKVPNative>();
@@ -15,26 +15,26 @@ public struct ByteArrayDictNative
         {
             Marshal.StructureToPtr(dict[i], ptr + i * size, false);
         }
-        
+
         return new ByteArrayDictNative { Length = dict.Length, Data = ptr };
     }
-    
+
     public static implicit operator ByteArrayKVPNative[](ByteArrayDictNative dict)
     {
         if (dict.Data == IntPtr.Zero || dict.Length == 0)
         {
             return [];
         }
-        
+
         ByteArrayKVPNative[] result = new ByteArrayKVPNative[dict.Length];
         int size = Marshal.SizeOf<ByteArrayKVPNative>();
         for (int i = 0; i < dict.Length; i++)
         {
             result[i] = Marshal.PtrToStructure<ByteArrayKVPNative>(dict.Data + i * size);
         }
-        
-        Marshal.FreeHGlobal(dict.Data);
-        
+
+        // Marshal.FreeHGlobal(dict.Data); Why release here?
+
         return result;
     }
 }

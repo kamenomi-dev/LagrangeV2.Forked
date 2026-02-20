@@ -5,7 +5,8 @@ namespace Lagrange.Core.NativeAPI.NativeModel.Common
 {
     public struct BotKeystoreStruct
     {
-        public BotKeystoreStruct() { }
+        public BotKeystoreStruct()
+        { }
 
         public long Uin = 0;
 
@@ -105,7 +106,8 @@ namespace Lagrange.Core.NativeAPI.NativeModel.Common
             {
                 bytePsKey[i++] = new ByteArrayKVPNative
                 {
-                    Key = Encoding.UTF8.GetBytes(kvp.Key), Value = Encoding.UTF8.GetBytes(kvp.Value)
+                    Key = Encoding.UTF8.GetBytes(kvp.Key),
+                    Value = Encoding.UTF8.GetBytes(kvp.Value)
                 };
             }
 
@@ -143,7 +145,8 @@ namespace Lagrange.Core.NativeAPI.NativeModel.Common
             var psKey = new Dictionary<string, string>();
             foreach (var kvp in (ByteArrayKVPNative[])PsKey)
             {
-                psKey[Encoding.UTF8.GetString(kvp.Key)] = Encoding.UTF8.GetString(kvp.Value);
+                // psKey[Encoding.UTF8.GetString(kvp.Key)] = Encoding.UTF8.GetString(kvp.Value); Oh shit, are u okay?
+                psKey[Encoding.UTF8.GetString(kvp.Key.ToByteArrayWithoutFree())] = Encoding.UTF8.GetString(kvp.Value.ToByteArrayWithoutFree());
             }
 
             return new BotKeystore()
